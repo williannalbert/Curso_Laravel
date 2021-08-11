@@ -15,12 +15,23 @@
             </ul>
         </div>
         <div class="informacao-pagina">
+            {{$msg ?? ''}}
             <div style="width:30%; margin-left:auto; margin-right:auto">
-                <form action="post" action="">
-                    <input type="text" name="nome" class="borda-preta" placeholder="Nome">
-                    <input type="text" name="site" class="borda-preta" placeholder="Site">
-                    <input type="text" name="uf" class="borda-preta" placeholder="UF">
-                    <input type="text" name="email" class="borda-preta" placeholder="E-mail">
+                <form method="post" action="{{route('app.fornecedor.adicionar')}}">
+                    <input type="hidden" name="id" value="{{$fornecedor->id ?? ''}}">
+                    @csrf
+                    <input type="text" name="nome" class="borda-preta" placeholder="Nome" value="{{ $fornecedor->nome ?? old('nome')}}">
+                    {{$errors->has('nome') ? $errors->first('nome') : ''}}
+
+                    <input type="text" name="site" class="borda-preta" placeholder="Site" value="{{ $fornecedor->site ?? old('site')}}">
+                    {{$errors->has('site') ? $errors->first('site') : ''}}
+
+                    <input type="text" name="uf" class="borda-preta" placeholder="UF" value="{{ $fornecedor->uf ?? old('uf')}}">
+                    {{$errors->has('uf') ? $errors->first('uf') : ''}}
+
+                    <input type="text" name="email" class="borda-preta" placeholder="E-mail" value="{{ $fornecedor->email ?? old('email')}}">
+                    {{$errors->has('email') ? $errors->first('email') : ''}}
+
                     <button type="submit" class="borda-preta"> Cadastrar </button>
                 </form>
             </div>
