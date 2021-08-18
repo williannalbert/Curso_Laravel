@@ -40,6 +40,7 @@ Route::middleware('autenticacao:padrao, visitante, p3, p4')->prefix('/app')->gro
     Route::get('/fornecedor/excluir/{id}}', 'FornecedorController@excluir')->name('app.fornecedor.excluir');
 
     Route::resource('produto', 'ProdutoController');
+    Route::resource('produto-detalhe', 'ProdutoDetalheController');
 });
 
 Route::fallback(function(){
