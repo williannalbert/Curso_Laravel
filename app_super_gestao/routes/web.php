@@ -41,7 +41,10 @@ Route::middleware('autenticacao:padrao, visitante, p3, p4')->prefix('/app')->gro
     Route::resource('produto-detalhe', 'ProdutoDetalheController');
     Route::resource('cliente', 'ClienteController');
     Route::resource('pedido', 'PedidoController');
-    Route::resource('pedido-produto', 'PedidoProdutoController');
+    //Route::resource('pedido-produto', 'PedidoProdutoController');
+    Route::get('pedido-produto/create/{pedido}', 'PedidoProdutoController@create')->name('pedido-produto.create');
+    Route::post('pedido-produto/create/{pedido}', 'PedidoProdutoController@store')->name('pedido-produto.store');
+    Route::delete('pedido-produto/destroy/{pedidoProduto}/{pedido_id}}', 'PedidoProdutoController@destroy')->name('pedido-produto.destroy');
 });
 
 Route::fallback(function(){

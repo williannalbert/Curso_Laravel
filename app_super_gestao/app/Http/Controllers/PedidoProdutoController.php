@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\{Pedido, Produto, PedidoProduto};
 
 use Illuminate\Http\Request;
 
@@ -21,9 +22,11 @@ class PedidoProdutoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Pedido $pedido)
     {
-        //
+        $produtos = Produto::all();
+        $pedido->produtos;
+        return view('app.pedido_produto.create', ['pedido'=>$pedido, 'produtos'=>$produtos]);
     }
 
     /**
@@ -32,9 +35,30 @@ class PedidoProdutoController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, Pedido $pedido)
     {
-        //
+        $regras = [
+            'produto_id'=>'exists:produtos,id',
+            'quantidade'=>'required'
+        ];
+        $feedback = [
+            'produto_id.exists'=>'Produto não localizado',
+            'required'=>'O campo :attribute é obrigatório'
+        ];
+        $request->validate($regras, $feedback);
+
+        /*$pedido_produto = new PedidoProduto();
+        $pedido_produto->pedido_id = $pedido->id;
+        $pedido_produto->produto_id = $request->get('produto_id');
+        $pedido_produto->quantidade = $request->get('quantidade');
+        $pedido_produto->save();*/
+
+        $pedido->produtos()->attach(
+            $request->get('produto_id'),
+            ['quantidade'=>$request->get('quantidade')]
+        ); 
+
+        return redirect()->route('pedido-produto.create', ['pedido'=>$pedido->id]);
     }
 
     /**
@@ -74,11 +98,14 @@ class PedidoProdutoController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  int  PedidoProduto $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(PedidoProduto $pedidoProduto, $pedido_id)
     {
-        //
+        //excluir todas as chaves relacionadas, independente do Id selecionado
+        $pedidoProduto->delete();
+
+        return redirect()->route('pedido-produto.create', ['pedido'=>$pedido_id]);
     }
 }
