@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Mail\NovaTarefaMail;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TarefasExport;
+use PDF;
 
 class TarefaController extends Controller
 {
@@ -113,8 +114,21 @@ class TarefaController extends Controller
         return redirect()->route('tarefa.index');
     }
 
-    public function exportacao()
+    public function exportacao($extensao)
     {
-        return Excel::download(new TarefasExport, 'tarefas.xlsx');
+        $nome_arquivo = 'tarefas.';
+        if(in_array($extensao, ['xlsx', 'csv', 'pdf']))
+            $nome_arquivo = $nome_arquivo.$extensao;
+        else
+            return redirect()->route('tarefa.index');
+
+        return Excel::download(new TarefasExport, $nome_arquivo);
+    }
+
+    public function exportar()
+    {
+        $tarefas = auth()->user()->tarefas()->get();
+        $pdf = PDF::loadView('tarefa.pdf', ['tarefas'=>$tarefas]);
+        return $pdf->download('tarefas_dompdf.pdf');
     }
 }

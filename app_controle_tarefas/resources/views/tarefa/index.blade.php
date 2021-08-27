@@ -11,7 +11,10 @@
                             Tarefas 
                         </div>
                         <div class="col-6">
-                            <a href="{{route('tarefa.exportacao')}}" class="float-right" style="margin-left: 10px">XLSX</a>
+                            <a href="{{route('tarefa.exportacao', ['extensao'=>'xlsx'])}}" class="float-right" style="margin-left: 10px">XLSX</a>
+                            <a href="{{route('tarefa.exportacao', ['extensao'=>'csv'])}}" class="float-right" style="margin-left: 10px">CSV</a>
+                            <a href="{{route('tarefa.exportacao', ['extensao'=>'pdf'])}}" class="float-right" style="margin-left: 10px">PDF</a>
+                            <a href="{{route('tarefa.exportar')}}" class="float-right" style="margin-left: 10px" target="_blank">DOMPDF</a>
                             <a href="{{route('tarefa.create')}}" class="float-right">Nova Tarefa</a>
                         </div>
                     </div>
