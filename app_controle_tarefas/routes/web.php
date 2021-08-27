@@ -16,14 +16,16 @@ use Illuminate\Support\Facades\Auth;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('bem-vindo');
 });
 
 Auth::routes(['verify'=>true]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home')
-    ->middleware('verified');
+->middleware('verified');
+Route::get('/tarefa/exportacao', 'App\Http\Controllers\TarefaController@exportacao')->name('tarefa.exportacao');
 Route::resource('tarefa', 'App\Http\Controllers\TarefaController')->middleware('auth')->middleware('verified');
+
 
 Route::get('mensagem-teste', function(){
     //Mail::to('williannalbert123@gmail.com')->send(new MensagemTestMail);
