@@ -43,7 +43,7 @@ class MarcaController extends Controller
     public function store(Request $request)
     {
         $marca = $this->marca->create($request->all());
-        return $marca;
+        return response()->json($marca, 201);
     }
 
     /**
@@ -55,6 +55,9 @@ class MarcaController extends Controller
     public function show($id)
     {
         $marca = $this->marca->find($id);
+        if(empty($marca))
+        return response()->json(['erro'=> 'Registro não localizado'], 404);
+
         return $marca;
     }
 
@@ -79,6 +82,9 @@ class MarcaController extends Controller
     public function update(Request $request, $id)
     {
         $marca = $this->marca->find($id);
+        if(empty($marca))
+            return response()->json(['erro'=> 'Registro não localizado'], 404);
+
         $marca->update($request->all());
         return $marca;
     }
@@ -92,6 +98,9 @@ class MarcaController extends Controller
     public function destroy($id)
     {
         $marca = $this->marca->find($id);
+        if(empty($marca))
+        return response()->json(['erro'=> 'Registro não localizado'], 404);
+            
         $marca->delete();
         return ['msg'=>'Exclusão realizada com sucesso'];
     }
