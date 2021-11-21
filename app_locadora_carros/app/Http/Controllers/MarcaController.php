@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Marca;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
@@ -46,7 +47,13 @@ class MarcaController extends Controller
         //habilitar o header accepted no postman
         $request->validate($this->marca->rules(), $this->marca->feedback());
 
-        $marca = $this->marca->create($request->all());
+        $imagem = $request->file('imagem');
+        $imagem_armazenada = $imagem->store('imagens', 'public');
+        
+        $marca = $this->marca->create([
+            'nome'=> $request->nome,
+            'imagem'=>$imagem_armazenada
+        ]);
         return response()->json($marca, 201);
     }
 
@@ -85,6 +92,7 @@ class MarcaController extends Controller
      */
     public function update(Request $request, $id)
     {
+        //por ser rota PUT/PATCH é necessário incluir o parametro _Method no Postman e definir a rota como POST
         $marca = $this->marca->find($id);
         if(empty($marca))
             return response()->json(['erro'=> 'Registro não localizado'], 404);
@@ -100,7 +108,18 @@ class MarcaController extends Controller
         }else{
             $request->validate($marca->rules(), $marca->feedback());
         }
-        $marca->update($request->all());
+
+        if($request->file('imagem')){
+            Storage::disk('public')->delete($marca->imagem);
+        }
+
+        $imagem = $request->file('imagem');
+        $imagem_armazenada = $imagem->store('imagens', 'public');
+
+        $marca->update([
+            'nome'=> $request->nome,
+            'imagem'=>$imagem_armazenada
+        ]);
         return $marca;
     }
 
@@ -116,6 +135,10 @@ class MarcaController extends Controller
         if(empty($marca))
         return response()->json(['erro'=> 'Registro não localizado'], 404);
             
+        if($marca->imagem){
+            Storage::disk('public')->delete($marca->imagem);
+        }
+
         $marca->delete();
         return ['msg'=>'Exclusão realizada com sucesso'];
     }
