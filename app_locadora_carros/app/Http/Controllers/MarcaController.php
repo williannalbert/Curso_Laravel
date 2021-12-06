@@ -22,8 +22,8 @@ class MarcaController extends Controller
     public function index()
     {
         //$marcas = Marca::all();
-        $marcas = $this->marca->all();
-        return $marcas;
+        $marcas = $this->marca->with('modelos')->get();
+        return response()->json($marcas, 200);
     }
 
     /**
@@ -65,11 +65,12 @@ class MarcaController extends Controller
      */
     public function show($id)
     {
-        $marca = $this->marca->find($id);
+        //adiciona o relacionamento do modelo com modelo
+        $marca = $this->marca->with('modelos')->find($id);
         if(empty($marca))
-        return response()->json(['erro'=> 'Registro não localizado'], 404);
+            return response()->json(['erro'=> 'Registro não localizado'], 404);
 
-        return $marca;
+        return response()->json($marca,200);
     }
 
     /**
@@ -120,7 +121,7 @@ class MarcaController extends Controller
             'nome'=> $request->nome,
             'imagem'=>$imagem_armazenada
         ]);
-        return $marca;
+        return response()->json($marca, 200);
     }
 
     /**

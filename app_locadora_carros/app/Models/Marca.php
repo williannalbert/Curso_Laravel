@@ -27,4 +27,8 @@ class Marca extends Model
             'imagem.mimes'=>'Imagem em formato incorreto. Aceito Png, Jpeg e Jpg'
         ];
     }
+    public function modelos()
+    {
+        return $this->hasMany('App\Models\Modelo');
+    }
 }
