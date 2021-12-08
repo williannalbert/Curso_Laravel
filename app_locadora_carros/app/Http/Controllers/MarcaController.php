@@ -115,12 +115,19 @@ class MarcaController extends Controller
         }
 
         $imagem = $request->file('imagem');
-        $imagem_armazenada = $imagem->store('imagens', 'public');
+        
 
-        $marca->update([
+        $marca->fill($request->all());
+        if($imagem !== null){
+            $imagem_armazenada = $imagem->store('imagens', 'public');
+            $marca->imagem = $imagem_armazenada;
+        }
+        $marca->save();
+        /*$marca->update([
             'nome'=> $request->nome,
             'imagem'=>$imagem_armazenada
         ]);
+        atualizando para que seja feita alterações parciais via patch*/
         return response()->json($marca, 200);
     }
 

@@ -17,9 +17,28 @@ class ModeloController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json($this->modelo->with('marca')->get(), 200);
+        //filtro definido na rota - localhost:8000/api/modelo?atributos=nome, lugares,abs,marca_id
+        //localhost:8000/api/modelo?atributos=nome, lugares,abs,marca_id&atributos_marca=nome,imagem
+        $modelos = array();
+        
+        if($request->has('atributos_marca')){
+            $atributos_marca = $request->atributos_marca;
+            $modelos = $this->modelo->with('marca:id,'.$atributos_marca);
+        }else{
+            $modelos = $this->modelo->with('marca');
+        }
+
+        if($request->has('atributos')){
+            $atributos = $request->atributos;
+            $modelos = $modelos->selectRaw($atributos)->get();
+        }
+        else{
+            $modelos = $modelos->get();
+        }
+
+        return response()->json($modelos, 200);
     }
 
     /**
@@ -115,9 +134,14 @@ class ModeloController extends Controller
         }
 
         $imagem = $request->file('imagem');
-        $imagem_armazenada = $imagem->store('imagens/modelos', 'public');
-
-        $modelo->update([
+        
+        $modelo->fill($request->all());
+        if($imagem!==null){
+            $imagem_armazenada = $imagem->store('imagens/modelos', 'public');
+            $modelo->imagem = $imagem_armazenada;
+        }
+        $modelo->save();
+        /*$modelo->update([
             'marca_id' => $request->marca_id,
             'nome' => $request->nome,
             'imagem' => $imagem_armazenada,
@@ -125,7 +149,8 @@ class ModeloController extends Controller
             'lugares' => $request->lugares,
             'air_bag' => $request->air_bag,
             'abs'=> $request->abs
-        ]);
+        ]);atualizando para que seja feita alterações parciais via patch*/
+
         return response()->json($modelo,200);
     }
 
