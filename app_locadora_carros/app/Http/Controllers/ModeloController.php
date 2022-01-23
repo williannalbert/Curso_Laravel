@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Modelo;
+use App\Repositories\ModeloRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -21,24 +22,25 @@ class ModeloController extends Controller
     {
         //filtro definido na rota - localhost:8000/api/modelo?atributos=nome, lugares,abs,marca_id
         //localhost:8000/api/modelo?atributos=nome, lugares,abs,marca_id&atributos_marca=nome,imagem
-        $modelos = array();
-        
-        if($request->has('atributos_marca')){
-            $atributos_marca = $request->atributos_marca;
-            $modelos = $this->modelo->with('marca:id,'.$atributos_marca);
-        }else{
-            $modelos = $this->modelo->with('marca');
+        //localhost:8000/api/modelo?atributos=nome, lugares,abs,marca_id&atributos_marca=nome,imagem&filtro=nome:=:Ford ká 
+        $modeloRepository = new ModeloRepository($this->modelo);
+
+        if($request->has('atributos_marca')) {
+            $atributos_marca = 'marca:id,'.$request->atributos_marca;
+            $modeloRepository->selectAtributosRegistrosRelacionados($atributos_marca);
+        } else {
+            $modeloRepository->selectAtributosRegistrosRelacionados('marca');
         }
 
-        if($request->has('atributos')){
-            $atributos = $request->atributos;
-            $modelos = $modelos->selectRaw($atributos)->get();
-        }
-        else{
-            $modelos = $modelos->get();
+        if($request->has('filtro')) {
+            $modeloRepository->filtro($request->filtro);
         }
 
-        return response()->json($modelos, 200);
+        if($request->has('atributos')) {
+            $modeloRepository->selectAtributos($request->atributos);
+        } 
+
+        return response()->json($modeloRepository->getResultado(), 200);
     }
 
     /**
