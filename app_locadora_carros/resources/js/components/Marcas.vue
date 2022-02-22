@@ -2,18 +2,91 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">Marcas</div>
-
-                    <div class="card-body">
-                        <p>Testetes</p>
-                    </div>
-                </div>
+                <card-component titulo="Busca de Marcas">
+                    <template v-slot:conteudo>
+                        <div class="form-row">
+                            <div class="col mb-3">
+                                <input-container-component 
+                                    titulo="ID" 
+                                    id="inputId"
+                                    id-help="idHelp"
+                                    texto-ajuda="Opcional. Informe o ID da marca">
+                                    <input type="number" class="form-control" id="inputId" aria-describedby="idHelp" placeholder="ID"> 
+                                </input-container-component>
+                            </div>
+                            <div class="col mb-3">
+                                <input-container-component 
+                                    titulo="Nome da Marca" 
+                                    id="inputNome"
+                                    id-help="nomeHelp"
+                                    texto-ajuda="Opcional. Informe o Nome da Marca">
+                                    <input type="text" class="form-control" id="inputNome" aria-describedby="nomeHelp" placeholder="Nome da Marca"> 
+                                </input-container-component>
+                            </div>
+                        </div>
+                    </template>
+                    <template v-slot:rodape>
+                        <button type="submit" class="btn btn-primary btn-sm float-right">Pesquisar</button>
+                    </template>
+                </card-component>
+                <card-component titulo="Relação de marcas">
+                    <template v-slot:conteudo>
+                        <table-component></table-component>
+                    </template>
+                    <template v-slot:rodape>
+                        <button type="submit" class="btn btn-primary btn-sm float-right"
+                        data-toggle="modal" data-target="#modalMarca">Adicionar</button>
+                    </template>
+                </card-component>
             </div>
         </div>
+        <modal-component id="modalMarca" titulo="Adicionar Marca">
+            <template v-slot:conteudo>
+                <div class="form-group">
+                    <div class="col mb-3">
+                        <input-container-component 
+                            titulo="Nome da Marca" 
+                            id="novoNome"
+                            id-help="novoNomeHelp"
+                            texto-ajuda="Informe o Nome da Marca">
+                        <input type="text" class="form-control" id="novoNome" v-model="nomeMarca"
+                            aria-describedby="novoNomeHelp" placeholder="Nome da Marca"> 
+                        </input-container-component>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col mb-3">
+                        <input-container-component 
+                            titulo="Imagem" 
+                            id="novoImagem"
+                            id-help="novoImagemHelp"
+                            texto-ajuda="Selecione uma imagem (.png)">
+                        <input type="file" class="form-control-file" id="novoImagem" @change="carregarImagem()"
+                            aria-describedby="novoImagemHelp" placeholder="Selecione uma imagem"> 
+                        </input-container-component>
+                    </div>
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary">Salvar</button>
+            </template>
+        </modal-component>
     </div>
 </template>
 
 <script>
-
+    export default{
+        data(){
+            return {
+                nomeMarca:'',
+                arquivoImagem:[]
+            }
+        },
+        methods:{
+            carregarImagem(e){
+                this.arquivoImagem = e.target.files
+            }
+        }
+    }
 </script>
