@@ -41,6 +41,10 @@
             </div>
         </div>
         <modal-component id="modalMarca" titulo="Adicionar Marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success"></alert-component>
+                <alert-component tipo="danger"></alert-component>
+            </template>
             <template v-slot:conteudo>
                 <div class="form-group">
                     <div class="col mb-3">
@@ -78,6 +82,15 @@
 
 <script>
     export default{
+        computed:{
+              token(){
+                  let token = document.cookie.split(';').find(indice=>{
+                      return indice.includes('token=')
+                  })
+                  token = token.split('=')[1]
+                  return 'Bearer ' + token
+              }      
+            },
         data(){
             return {
                 urlBase:'http://localhost:8000/api/v1/marca',
@@ -90,7 +103,6 @@
                 this.arquivoImagem = e.target.files
             },
             salvar(){
-
                 let formdata = new FormData();
                 formdata.append('nome', this.nomeMarca)
                 formdata.append('imagem', this.arquivoImagem[0])
@@ -98,7 +110,8 @@
                 let config = {
                     headers:{
                         'Content-Type': 'multipart/form-data',
-                        'Accept':'application/json'
+                        'Accept':'application/json',
+                        'Authorization':this.token
                     }
                 }
                 axios.post(this.urlBase,formdata, config)
