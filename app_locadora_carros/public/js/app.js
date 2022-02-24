@@ -2358,9 +2358,11 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
+      urlBase: 'http://localhost:8000/api/v1/marca',
       nomeMarca: '',
       arquivoImagem: []
     };
@@ -2368,6 +2370,22 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     carregarImagem: function carregarImagem(e) {
       this.arquivoImagem = e.target.files;
+    },
+    salvar: function salvar() {
+      var formdata = new FormData();
+      formdata.append('nome', this.nomeMarca);
+      formdata.append('imagem', this.arquivoImagem[0]);
+      var config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json'
+        }
+      };
+      axios.post(this.urlBase, formdata, config).then(function (response) {
+        console.log(response);
+      })["catch"](function (errors) {
+        console.log(errors);
+      });
     }
   }
 });
@@ -39032,7 +39050,7 @@ var render = function () {
                             },
                             on: {
                               change: function ($event) {
-                                return _vm.carregarImagem()
+                                return _vm.carregarImagem($event)
                               },
                             },
                           }),
@@ -39061,7 +39079,15 @@ var render = function () {
                 _vm._v(" "),
                 _c(
                   "button",
-                  { staticClass: "btn btn-primary", attrs: { type: "button" } },
+                  {
+                    staticClass: "btn btn-primary",
+                    attrs: { type: "button" },
+                    on: {
+                      click: function ($event) {
+                        return _vm.salvar()
+                      },
+                    },
+                  },
                   [_vm._v("Salvar")]
                 ),
               ]

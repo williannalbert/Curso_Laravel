@@ -61,15 +61,16 @@
                             id="novoImagem"
                             id-help="novoImagemHelp"
                             texto-ajuda="Selecione uma imagem (.png)">
-                        <input type="file" class="form-control-file" id="novoImagem" @change="carregarImagem()"
+                        <input type="file" class="form-control-file" id="novoImagem" @change="carregarImagem($event)"
                             aria-describedby="novoImagemHelp" placeholder="Selecione uma imagem"> 
                         </input-container-component>
+                        
                     </div>
                 </div>
             </template>
             <template v-slot:rodape>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
             </template>
         </modal-component>
     </div>
@@ -79,6 +80,7 @@
     export default{
         data(){
             return {
+                urlBase:'http://localhost:8000/api/v1/marca',
                 nomeMarca:'',
                 arquivoImagem:[]
             }
@@ -86,6 +88,26 @@
         methods:{
             carregarImagem(e){
                 this.arquivoImagem = e.target.files
+            },
+            salvar(){
+
+                let formdata = new FormData();
+                formdata.append('nome', this.nomeMarca)
+                formdata.append('imagem', this.arquivoImagem[0])
+
+                let config = {
+                    headers:{
+                        'Content-Type': 'multipart/form-data',
+                        'Accept':'application/json'
+                    }
+                }
+                axios.post(this.urlBase,formdata, config)
+                .then(response => {
+                    console.log(response)
+                })
+                .catch(errors => {
+                    console.log(errors)
+                })
             }
         }
     }
