@@ -42,8 +42,10 @@
         </div>
         <modal-component id="modalMarca" titulo="Adicionar Marca">
             <template v-slot:alertas>
-                <alert-component tipo="success"></alert-component>
-                <alert-component tipo="danger"></alert-component>
+                <alert-component tipo="success" :detalhes="detalheTransacao" v-if="statusTransacao=='adicionado'"
+                titulo="Cadastro realizado com sucesso"></alert-component>
+                <alert-component tipo="danger" :detalhes="detalheTransacao" v-if="statusTransacao=='erro'"
+                    titulo="Erro ao cadastrar Marca"></alert-component>
             </template>
             <template v-slot:conteudo>
                 <div class="form-group">
@@ -95,10 +97,27 @@
             return {
                 urlBase:'http://localhost:8000/api/v1/marca',
                 nomeMarca:'',
-                arquivoImagem:[]
+                arquivoImagem:[],
+                statusTransacao:'',
+                detalheTransacao:{},
+                marcas:[]
             }
         },
         methods:{
+            carregarLista(){
+                let config = {
+                    headers:{
+                        'Accept':'application/json',
+                        'Authorization':this.token
+                    }
+                }
+                axios.get(this.urlBase, config)
+                .then(response => {
+                    this.marcas = response.data
+                }).catch(errors => {
+
+                })
+            },
             carregarImagem(e){
                 this.arquivoImagem = e.target.files
             },
@@ -117,11 +136,23 @@
                 axios.post(this.urlBase,formdata, config)
                 .then(response => {
                     console.log(response)
+                    this.statusTransacao = 'adicionado'
+                    this.detalheTransacao = {
+                        mensagem: 'Código do registro '+response.data.id
+                    }
                 })
                 .catch(errors => {
-                    console.log(errors)
+                    //console.log(errors.response.data.message)
+                    this.statusTransacao = 'erro'
+                    this.detalheTransacao = {
+                        mensagem:errors.response.data.message,
+                        dados:errors.response.data.errors
+                    }
                 })
             }
-        }
+        },
+        mounted() {
+            this.carregarLista()
+        },
     }
 </script>
