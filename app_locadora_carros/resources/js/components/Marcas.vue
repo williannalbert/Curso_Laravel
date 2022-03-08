@@ -31,7 +31,14 @@
                 </card-component>
                 <card-component titulo="Relação de marcas">
                     <template v-slot:conteudo>
-                        <table-component></table-component>
+                        <table-component :dados="marcas" 
+                            :titulos="{
+                                id:{titulo:'ID', tipo:'texto'},
+                                nome:{titulo:'Nome', tipo:'texto'},
+                                imagem:{titulo:'Imagem', tipo:'imagem'},
+                                created_at:{titulo:'Data de Criação', tipo:'data'}
+                            }">
+                        </table-component>
                     </template>
                     <template v-slot:rodape>
                         <button type="submit" class="btn btn-primary btn-sm float-right"
