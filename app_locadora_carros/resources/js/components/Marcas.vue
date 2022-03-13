@@ -36,7 +36,7 @@
                         <table-component :dados="marcas.data" 
                         :visualizar="{visivel:true, dataToggle: 'modal', dataTarget: '#modalVisualizarMarca'}"
                         :atualizar="true"
-                        :remover="true"
+                        :remover="{visivel:true, dataToggle: 'modal', dataTarget: '#modalRemoverMarca'}"
                             :titulos="{
                                 id:{titulo:'ID', tipo:'texto'},
                                 nome:{titulo:'Nome', tipo:'texto'},
@@ -95,7 +95,6 @@
                         <input type="file" class="form-control-file" id="novoImagem" @change="carregarImagem($event)"
                             aria-describedby="novoImagemHelp" placeholder="Selecione uma imagem"> 
                         </input-container-component>
-                        
                     </div>
                 </div>
             </template>
@@ -105,7 +104,8 @@
             </template>
         </modal-component>
         <modal-component id="modalVisualizarMarca" titulo="Visualizar Marca">
-            <template v-slot:alertas></template>
+            <template v-slot:alertas>
+            </template>
             <template v-slot:conteudo>
                 <input-container-component titulo="Código">
                     <input type="text" class="form-control" :value="$store.state.item.id" disabled>
@@ -121,6 +121,35 @@
                 </input-container-component>
             </template>
             <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            </template>
+        </modal-component>
+        <modal-component id="modalRemoverMarca" titulo="Remover Marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success" 
+                    titulo="Transação realizada com sucesso"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'">
+                </alert-component>
+                <alert-component tipo="danger" 
+                    titulo="Erro na transação"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status =='erro'">
+                </alert-component>
+            </template>
+            <template v-slot:conteudo v-if="$store.state.transacao.status != 'sucesso'">
+                <input-container-component titulo="Código">
+                    <input type="text" class="form-control" :value="$store.state.item.id" disabled>
+                </input-container-component>
+                <input-container-component titulo="Nome da Marca">
+                    <input type="text" class="form-control" :value="$store.state.item.nome" disabled>
+                </input-container-component>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-danger" 
+                @click="remover()" v-if="$store.state.transacao.status != 'sucesso'">
+                    Remover
+                </button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
             </template>
         </modal-component>
@@ -154,6 +183,32 @@ import InputContainer from './InputContainer.vue'
             }
         },
         methods:{
+            remover(){
+                let confirmacao = confirm('Tem certeza que deseja excluir esse registro?')
+                if(!confirmacao)
+                {    
+                    return false;
+                }
+                let url = this.urlBase + '/' + this.$store.state.item.id
+                
+                let formData = new FormData();
+                formData.append('_method', 'delete')    
+                let config = {
+                    headers:{
+                        'Accept':'application/json',
+                        'Authorization':this.token
+                    }
+                }
+                axios.post(url, formData, config)
+                    .then(response => {
+                        this.$store.state.transacao.status = 'sucesso'
+                        this.$store.state.transacao.mensagem = response.data.msg
+                        this.carregarLista() 
+                    }).catch(errors => {
+                        this.$store.state.transacao.status = 'erro'
+                        this.$store.state.transacao.mensagem = errors.response.data.erro
+                    })               
+            },
             pesquisar(){
                 let filtro = ''
                 for(let chave in this.busca){
@@ -211,11 +266,11 @@ import InputContainer from './InputContainer.vue'
                 }
                 axios.post(this.urlBase,formdata, config)
                 .then(response => {
-                    console.log(response)
                     this.statusTransacao = 'adicionado'
                     this.detalheTransacao = {
                         mensagem: 'Código do registro '+response.data.id
                     }
+                    this.carregarLista()
                 })
                 .catch(errors => {
                     //console.log(errors.response.data.message)
