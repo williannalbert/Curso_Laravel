@@ -35,7 +35,7 @@
                     <template v-slot:conteudo>
                         <table-component :dados="marcas.data" 
                         :visualizar="{visivel:true, dataToggle: 'modal', dataTarget: '#modalVisualizarMarca'}"
-                        :atualizar="true"
+                        :atualizar="{visivel:true, dataToggle: 'modal', dataTarget: '#modalAtualizarMarca'}"
                         :remover="{visivel:true, dataToggle: 'modal', dataTarget: '#modalRemoverMarca'}"
                             :titulos="{
                                 id:{titulo:'ID', tipo:'texto'},
@@ -103,6 +103,51 @@
                 <button type="button" class="btn btn-primary" @click="salvar()">Salvar</button>
             </template>
         </modal-component>
+        <modal-component id="modalAtualizarMarca" titulo="Atualizar Marca">
+            <template v-slot:alertas>
+                <alert-component tipo="success" 
+                    titulo="Transação realizada com sucesso"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status == 'sucesso'">
+                </alert-component>
+                <alert-component tipo="danger" 
+                    titulo="Erro na transação"
+                    :detalhes="$store.state.transacao"
+                    v-if="$store.state.transacao.status =='erro'">
+                </alert-component>
+            </template>
+            <template v-slot:conteudo>
+                <div class="form-group">
+                    <div class="col mb-3">
+                        <input-container-component 
+                            titulo="Nome da Marca" 
+                            id="atualizarNome"
+                            id-help="atualizarNomeHelp"
+                            texto-ajuda="Informe o Nome da Marca">
+                        <input type="text" class="form-control" id="novoNome"
+                            aria-describedby="novoNomeHelp" placeholder="Nome da Marca"
+                            v-model="$store.state.item.nome"> 
+                        </input-container-component>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col mb-3">
+                        <input-container-component 
+                            titulo="Imagem" 
+                            id="atualizarImagem"
+                            id-help="atualizarImagemHelp"
+                            texto-ajuda="Selecione uma imagem (.png)">
+                        <input type="file" class="form-control-file" id="atualizarImagem" @change="carregarImagem($event)"
+                            aria-describedby="atualizarImagemHelp" placeholder="Selecione uma imagem"> 
+                        </input-container-component>
+                    </div>
+                </div>
+            </template>
+            <template v-slot:rodape>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" @click="atualizar()">Atualizar</button>
+            </template>
+        </modal-component>
         <modal-component id="modalVisualizarMarca" titulo="Visualizar Marca">
             <template v-slot:alertas>
             </template>
@@ -153,6 +198,7 @@
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
             </template>
         </modal-component>
+        
     </div>
 </template>
 
@@ -183,6 +229,34 @@ import InputContainer from './InputContainer.vue'
             }
         },
         methods:{
+            atualizar(){
+                let formData = new FormData();
+                formData.append('_method', 'patch')
+                formData.append('nome', this.$store.state.item.nome)
+                if(this.arquivoImagem[0]){
+                    formData.append('imagem', this.arquivoImagem[0])
+                }
+
+                let url = this.urlBase + '/'+ this.$store.state.item.id
+                let config = {
+                    headers:{
+                        'Content-Type':'multipart/form-data',
+                        'Accept':'application/json',
+                        'Authorization':this.token
+                    }
+                }
+                axios.post(url, formData, config)
+                    .then(response => {
+                        atualizarImagem.value = ''
+                        this.$store.state.transacao.status = 'sucesso'
+                        this.$store.state.transacao.mensagem = 'Atualização realizada com sucesso.'
+                        this.carregarLista()
+                    }).catch(errors => {
+                        this.$store.state.transacao.status = 'erro'
+                        this.$store.state.transacao.mensagem = errors.response.data.message
+                        this.$store.state.transacao.dados = errors.response.data.errors
+                    })
+                },
             remover(){
                 let confirmacao = confirm('Tem certeza que deseja excluir esse registro?')
                 if(!confirmacao)
@@ -205,6 +279,7 @@ import InputContainer from './InputContainer.vue'
                         this.$store.state.transacao.mensagem = response.data.msg
                         this.carregarLista() 
                     }).catch(errors => {
+                        
                         this.$store.state.transacao.status = 'erro'
                         this.$store.state.transacao.mensagem = errors.response.data.erro
                     })               
