@@ -203,18 +203,19 @@
 </template>
 
 <script>
-import InputContainer from './InputContainer.vue'
+import Paginar from './Paginar.vue'
     export default{
-  components: { InputContainer },
-        computed:{
-              token(){
-                  let token = document.cookie.split(';').find(indice=>{
-                      return indice.includes('token=')
-                  })
-                  token = token.split('=')[1]
-                  return 'Bearer ' + token
-              }      
-            },
+        components: { Paginar },
+        /*computed:{
+            token(){
+                let token = document.cookie.split(';').find(indice=>{
+                    return indice.includes('token=')
+                })
+                token = token.split('=')[1]
+                return 'Bearer ' + token
+            }      
+        },
+        enviado para bootstrap.js*/
         data(){
             return {
                 urlBase:'http://localhost:8000/api/v1/marca',
@@ -240,9 +241,10 @@ import InputContainer from './InputContainer.vue'
                 let url = this.urlBase + '/'+ this.$store.state.item.id
                 let config = {
                     headers:{
-                        'Content-Type':'multipart/form-data',
-                        'Accept':'application/json',
-                        'Authorization':this.token
+                        'Content-Type':'multipart/form-data'
+                        //headers passados para o bootstrap.js
+                        //'Accept':'application/json',
+                        //'Authorization':this.token
                     }
                 }
                 axios.post(url, formData, config)
@@ -267,13 +269,8 @@ import InputContainer from './InputContainer.vue'
                 
                 let formData = new FormData();
                 formData.append('_method', 'delete')    
-                let config = {
-                    headers:{
-                        'Accept':'application/json',
-                        'Authorization':this.token
-                    }
-                }
-                axios.post(url, formData, config)
+
+                axios.post(url, formData)
                     .then(response => {
                         this.$store.state.transacao.status = 'sucesso'
                         this.$store.state.transacao.mensagem = response.data.msg
@@ -311,17 +308,18 @@ import InputContainer from './InputContainer.vue'
             },
             carregarLista(){
                 let url = this.urlBase + '?' + this.urlPaginacao + this.urlFiltro
-                let config = {
-                    headers:{
-                        'Accept':'application/json',
-                        'Authorization':this.token
-                    }
-                }
-                axios.get(url, config)
+                //let config = {
+                //    headers:{
+                //        'Accept':'application/json',
+                //        'Authorization':this.token
+                //    }
+                //}
+                //axios.get(url, config) informações passadas pelo bootstrap.js
+                axios.get(url)
                 .then(response => {
                     this.marcas = response.data
                 }).catch(errors => {
-
+                    console.log(errors);
                 })
             },
             carregarImagem(e){
@@ -334,9 +332,7 @@ import InputContainer from './InputContainer.vue'
 
                 let config = {
                     headers:{
-                        'Content-Type': 'multipart/form-data',
-                        'Accept':'application/json',
-                        'Authorization':this.token
+                        'Content-Type': 'multipart/form-data'
                     }
                 }
                 axios.post(this.urlBase,formdata, config)

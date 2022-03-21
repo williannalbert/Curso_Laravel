@@ -45,6 +45,19 @@ Vue.component('paginate-component', require('./components/Paginar.vue').default)
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+Vue.filter('formataDataHoraGlobal', function(d){
+    if(!d)
+    return ''
+
+    let dataFormatada = d.split('T')
+    let data = dataFormatada[0]
+    let tempo = dataFormatada[1]
+
+    tempo = tempo.split('.')
+    data = data.split('-')
+    data = data[2]+'/'+data[1]+'/'+data[0]+' '+tempo[0]
+    return data
+})
 
 const app = new Vue({
     el: '#app',

@@ -123,6 +123,7 @@ class MarcaController extends Controller
                     $regrasDinamicas[$input] = $regra;
                 }
             }
+            $request->validate($regrasDinamicas, $marca->feedback());
         }else{
             $request->validate($marca->rules(), $marca->feedback());
         }
